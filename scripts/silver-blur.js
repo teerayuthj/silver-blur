@@ -10,8 +10,8 @@ class SilverPriceBlur {
         // Market hours in Bangkok timezone (08:30 - 17:30)
         this.marketOpenHour = 8;
         this.marketOpenMinute = 30;
-        this.marketCloseHour = 17;
-        this.marketCloseMinute = 30;
+        this.marketCloseHour = 15;
+        this.marketCloseMinute = 0;
         
         // Price element IDs to blur
         this.priceElements = [
