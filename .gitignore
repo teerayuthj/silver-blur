@@ -1,5 +1,7 @@
 .DS_Store
 .cladde
 /plan-mode.md 
-/silver.html
 /test-blur.html
+/silver.html
+
+.gitignore
