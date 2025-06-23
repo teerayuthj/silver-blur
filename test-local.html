@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Silver Blur Local - 23 June 2025</title>
+    <link rel="stylesheet" href="dist/silver-blur.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .test-title {
+            text-align: center;
+            color: #4facfe;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .price-display {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .sv-event-timer {
+            background: #1e3a8a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .test-info {
+            background: #374151;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .test-button {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        .test-button:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🧪 Silver Price Blur System Test</h1>
+        <h2 style="text-align: center; color: #fbbf24;">วันทดสอบ: 23 มิถุนายน 2568 (23 June 2025)</h2>
+        
+        <div class="test-info">
+            <h3>📋 ข้อมูลการทดสอบ:</h3>
+            <p><strong>วันที่จำลอง:</strong> วันจันทร์ 23 มิถุนายน 2568</p>
+            <p><strong>สถานะ:</strong> วันหยุดทดสอบระบบ (System Test Day)</p>
+            <p><strong>ผลลัพธ์ที่คาดหวัง:</strong> ราคาควรถูก blur ทั้งวัน</p>
+        </div>
+
+        <div class="price-display">
+            <h3>💰 ราคาเงิน (Silver Price)</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+                <div>
+                    <div>USD Bid: <span id="slvUsdBid">$28.50</span></div>
+                    <div>USD Offer: <span id="slvUsdOffer">$28.55</span></div>
+                    <div>USD Change: <span id="slvUsdChg" style="color: #10b981;">+0.15</span></div>
+                </div>
+                <div>
+                    <div>THB/กก. Bid: <span id="slvKgBid">฿28,500</span></div>
+                    <div>THB/กก. Offer: <span id="slvKgOffer">฿28,550</span></div>
+                    <div>THB Change: <span id="slvKgChg" style="color: #ef4444;">-50</span></div>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <span class="sv-vat-label">รวม VAT 7%</span>: <span id="slvKgVat">฿30,548</span>
+            </div>
+        </div>
+
+        <div class="sv-event-timer">
+            <h3>⏰ ตัวจับเวลาตลาด (Market Timer)</h3>
+            <p>ระบบนี้ควรแสดง overlay เมื่อราคาไม่พร้อมใช้งาน</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔧 เครื่องมือทดสอบ:</h3>
+            <button class="test-button" onclick="testSilverBlur()">🧪 ทดสอบระบบ</button>
+            <button class="test-button" onclick="listHolidays(2025)">📅 ดูวันหยุด 2025</button>
+            <button class="test-button" onclick="setMarketHours(9, 0)">⏰ เปลี่ยนเปิดตลาด 9:00</button>
+            <button class="test-button" onclick="setMarketHours(8, 0)">⏰ กลับเปิดตลาด 8:00</button>
+        </div>
+
+        <div class="test-info">
+            <h3>💡 วิธีทดสอบ:</h3>
+            <ol>
+                <li>เปิด Developer Console (F12)</li>
+                <li>คลิก "ทดสอบระบบ" เพื่อดูสถานะปัจจุบัน</li>
+                <li>ตรวจสอบว่าราคาและตัวจับเวลาถูก blur หรือไม่</li>
+                <li>คลิก "ดูวันหยุด 2025" เพื่อยืนยันว่า 23 มิถุนายน อยู่ในรายการ</li>
+            </ol>
+        </div>
+
+        <div class="test-info" style="background: #dc2626; color: white;">
+            <h3>⚠️ หมายเหตุ:</h3>
+            <p>การทดสอบนี้ใช้ไฟล์ local จาก <code>dist/</code> ไม่ใช่ CDN</p>
+            <p>วันที่ 23 มิถุนายน 2568 ถูกเพิ่มเป็นวันหยุดทดสอบชั่วคราว</p>
+        </div>
+    </div>
+
+    <!-- Load Local Files -->
+    <script src="dist/silver-blur.min.js"></script>
+    <script>
+        // Mock date to 23 June 2025 for testing
+        console.log('🧪 Test Mode: Simulating 23 June 2025 (Holiday Test Day)');
+        console.log('📝 Expected Result: Prices should be blurred all day');
+        
+        // Display current test status
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('🔍 Running automatic test...');
+                testSilverBlur();
+                console.log('');
+                console.log('📋 Holiday list for 2025:');
+                listHolidays(2025);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

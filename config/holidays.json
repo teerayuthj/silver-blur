@@ -128,6 +128,11 @@
               "name_en": "Queen Suthida's Birthday",
               "type": "royal"
           },
+          "06-23": {
+              "name": "วันทดสอบระบบ",
+              "name_en": "System Test Day",
+              "type": "test"
+          },
           "07-10": {
               "name": "วันอาสาฬหบูชา",
               "name_en": "Asahna Bucha Day",
