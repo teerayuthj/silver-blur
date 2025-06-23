@@ -1,6 +1,6 @@
 {
   "name": "silver-price-blur",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Silver price blur system with weekend and holiday detection",
   "main": "scripts/silver-blur.js",
   "scripts": {
