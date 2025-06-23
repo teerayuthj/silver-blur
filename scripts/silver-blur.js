@@ -12,8 +12,10 @@ class SilverPriceBlur {
         this.config = {
             holidayJsonUrl: options.holidayJsonUrl || './config/holidays.json',
             cdnBaseUrl: options.cdnBaseUrl || null,
-            marketOpenHour: options.marketOpenHour || 8,
+            marketOpenHour: options.marketOpenHour || 5,
             marketOpenMinute: options.marketOpenMinute || 0,
+            weekendCloseHour: options.weekendCloseHour || 4,  // Saturday close time
+            weekendCloseMinute: options.weekendCloseMinute || 0,
             ...options
         };
         
@@ -106,16 +108,42 @@ class SilverPriceBlur {
         return null;
     }
     
-    // Check if market is open (prices available) - Only blur on weekends, holidays, and before market hours
+    // Check if current time is in weekend closure period (Saturday 04:00 - Sunday 24:00)
+    isWeekendClosure() {
+        const bangkokTime = this.getBangkokTime();
+        const dayOfWeek = bangkokTime.getDay(); // 0 = Sunday, 6 = Saturday
+        const currentHour = bangkokTime.getHours();
+        const currentMinute = bangkokTime.getMinutes();
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+        const weekendCloseMinutes = this.config.weekendCloseHour * 60 + this.config.weekendCloseMinute;
+        
+        // Sunday - closed all day
+        if (dayOfWeek === 0) {
+            return true;
+        }
+        
+        // Saturday - closed from 04:00 onwards
+        if (dayOfWeek === 6 && currentTotalMinutes >= weekendCloseMinutes) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // Check if market is open (prices available) - Global market hours with weekend and holiday closures
     isMarketOpen() {
         const bangkokTime = this.getBangkokTime();
         const dayOfWeek = bangkokTime.getDay(); // 0 = Sunday, 6 = Saturday
         const currentHour = bangkokTime.getHours();
         const currentMinute = bangkokTime.getMinutes();
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+        const marketOpenMinutes = this.config.marketOpenHour * 60 + this.config.marketOpenMinute;
         
-        // Weekend check (Saturday = 6, Sunday = 0)
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-            console.log(`Silver Blur: Weekend detected (${dayOfWeek === 0 ? 'Sunday' : 'Saturday'}), price not available`);
+        // Weekend closure check
+        if (this.isWeekendClosure()) {
+            const dayName = dayOfWeek === 0 ? 'Sunday' : 'Saturday';
+            const timeInfo = dayOfWeek === 6 ? ` (closed from ${this.config.weekendCloseHour.toString().padStart(2, '0')}:${this.config.weekendCloseMinute.toString().padStart(2, '0')})` : '';
+            console.log(`Silver Blur: Weekend closure - ${dayName}${timeInfo}, price not available`);
             return false;
         }
         
@@ -126,18 +154,42 @@ class SilverPriceBlur {
             return false;
         }
         
-        // Market hours check for weekdays
-        const currentTotalMinutes = currentHour * 60 + currentMinute;
-        const marketOpenMinutes = this.config.marketOpenHour * 60 + this.config.marketOpenMinute;
+        // Check if it's after a holiday and before market open time
+        if (this.isAfterHolidayBeforeOpen()) {
+            console.log(`Silver Blur: After holiday, before market open (${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')}), price not available`);
+            return false;
+        }
         
-        if (currentTotalMinutes < marketOpenMinutes) {
+        // Weekday early hours check (before 05:00)
+        if (dayOfWeek >= 1 && dayOfWeek <= 5 && currentTotalMinutes < marketOpenMinutes) {
             console.log(`Silver Blur: Before market hours (opens at ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')}), price not available`);
             return false;
         }
         
-        // Weekdays (Monday-Friday) that are not holidays and after market opening time
-        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price AVAILABLE (weekday, not holiday, after ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')})`);
+        // Market is open - weekdays from 05:00-24:00 (except Saturday from 04:00+)
+        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price AVAILABLE (global market hours)`);
         return true;
+    }
+    
+    // Check if current time is after a holiday but before market open time (05:00)
+    isAfterHolidayBeforeOpen() {
+        const bangkokTime = this.getBangkokTime();
+        const currentHour = bangkokTime.getHours();
+        const currentMinute = bangkokTime.getMinutes();
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+        const marketOpenMinutes = this.config.marketOpenHour * 60 + this.config.marketOpenMinute;
+        
+        // Check if yesterday was a holiday
+        const yesterday = new Date(bangkokTime);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayHoliday = this.getHolidayInfo(yesterday);
+        
+        // If yesterday was a holiday and current time is before market open
+        if (yesterdayHoliday && currentTotalMinutes < marketOpenMinutes) {
+            return true;
+        }
+        
+        return false;
     }
     
     // Apply blur effect to price elements
@@ -334,14 +386,18 @@ class SilverPriceBlur {
         const holidayInfo = this.getHolidayInfo(bangkokTime);
         const currentHour = bangkokTime.getHours();
         const currentMinute = bangkokTime.getMinutes();
+        const dayOfWeek = bangkokTime.getDay();
         
         console.log('=== Silver Blur Time Test ===');
         console.log('Current Bangkok Time:', bangkokTime.toLocaleString('th-TH', {timeZone: 'Asia/Bangkok'}));
-        console.log('Day of Week:', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][bangkokTime.getDay()]);
+        console.log('Day of Week:', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek]);
         console.log('Is Holiday:', holidayInfo ? `Yes - ${holidayInfo.name}` : 'No');
-        console.log(`Market Hours: Opens at ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')}`);
+        console.log('Is Weekend Closure:', this.isWeekendClosure());
+        console.log('Is After Holiday Before Open:', this.isAfterHolidayBeforeOpen());
+        console.log(`Global Market Hours: ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')} - 24:00`);
+        console.log(`Weekend Close: Saturday ${this.config.weekendCloseHour.toString().padStart(2, '0')}:${this.config.weekendCloseMinute.toString().padStart(2, '0')} - Sunday 24:00`);
         console.log(`Current Time: ${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`);
-        console.log('Blur Logic: Weekends + Holidays + Before Market Hours');
+        console.log('Blur Logic: Global Market Hours + Weekend Closure + Holidays');
         console.log('Market Status:', this.isMarketOpen() ? 'OPEN' : 'CLOSED');
         console.log('Current Blur State:', this.currentBlurState ? 'BLURRED' : 'VISIBLE');
         console.log('=== End Test ===');
@@ -389,7 +445,16 @@ window.listHolidays = (year) => {
 window.setMarketHours = (hour, minute = 0) => {
     window.silverBlur.config.marketOpenHour = hour;
     window.silverBlur.config.marketOpenMinute = minute;
-    console.log(`Silver Blur: Market hours updated to ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    console.log(`Silver Blur: Market open hours updated to ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    // Immediately update blur status
+    window.silverBlur.updateBlurStatus();
+};
+
+// Set weekend close time
+window.setWeekendCloseTime = (hour, minute = 0) => {
+    window.silverBlur.config.weekendCloseHour = hour;
+    window.silverBlur.config.weekendCloseMinute = minute;
+    console.log(`Silver Blur: Weekend close time updated to Saturday ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
     // Immediately update blur status
     window.silverBlur.updateBlurStatus();
 };
