@@ -2,16 +2,20 @@
 // Handles market hours detection and price blurring for Bangkok timezone
 
 class SilverPriceBlur {
-    constructor() {
+    constructor(options = {}) {
         this.isInitialized = false;
         this.blurCheckInterval = null;
         this.currentBlurState = false;
+        this.holidayData = null;
         
-        // Market hours in Bangkok timezone (08:30 - 17:30)
-        this.marketOpenHour = 8;
-        this.marketOpenMinute = 30;
-        this.marketCloseHour = 17;
-        this.marketCloseMinute = 29;
+        // Configuration options
+        this.config = {
+            holidayJsonUrl: options.holidayJsonUrl || './config/holidays.json',
+            cdnBaseUrl: options.cdnBaseUrl || null,
+            ...options
+        };
+        
+        // Holiday configuration will be loaded from external file
         
         // Price element IDs to blur
         this.priceElements = [
@@ -44,12 +48,66 @@ class SilverPriceBlur {
         return bangkokTime;
     }
     
-    // Check if current time is within market hours
+    // Load holiday configuration from external JSON file
+    async loadHolidayData() {
+        const holidayUrl = this.config.cdnBaseUrl 
+            ? `${this.config.cdnBaseUrl}/config/holidays.json`
+            : this.config.holidayJsonUrl;
+            
+        try {
+            console.log(`Silver Blur: Loading holidays from ${holidayUrl}`);
+            const response = await fetch(holidayUrl);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            this.holidayData = await response.json();
+            console.log('Silver Blur: Holiday data loaded successfully');
+            return true;
+        } catch (error) {
+            console.warn('Silver Blur: Failed to load holiday data:', error.message);
+            console.warn('Silver Blur: Continuing with weekend-only blur');
+            this.holidayData = { holidays: {} };
+            return false;
+        }
+    }
+    
+    // Check if current date is a holiday
+    isHoliday(date = null) {
+        if (!this.holidayData || !this.holidayData.holidays) {
+            return false;
+        }
+        
+        const checkDate = date || this.getBangkokTime();
+        const year = checkDate.getFullYear().toString();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const dateKey = `${month}-${day}`;
+        
+        return this.holidayData.holidays[year] && this.holidayData.holidays[year][dateKey];
+    }
+    
+    // Get holiday information for a specific date
+    getHolidayInfo(date = null) {
+        if (!this.holidayData || !this.holidayData.holidays) {
+            return null;
+        }
+        
+        const checkDate = date || this.getBangkokTime();
+        const year = checkDate.getFullYear().toString();
+        const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const day = String(checkDate.getDate()).padStart(2, '0');
+        const dateKey = `${month}-${day}`;
+        
+        if (this.holidayData.holidays[year] && this.holidayData.holidays[year][dateKey]) {
+            return this.holidayData.holidays[year][dateKey];
+        }
+        return null;
+    }
+    
+    // Check if market is open (prices available) - Only blur on weekends and holidays
     isMarketOpen() {
         const bangkokTime = this.getBangkokTime();
         const dayOfWeek = bangkokTime.getDay(); // 0 = Sunday, 6 = Saturday
-        const currentHour = bangkokTime.getHours();
-        const currentMinute = bangkokTime.getMinutes();
         
         // Weekend check (Saturday = 6, Sunday = 0)
         if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -57,15 +115,16 @@ class SilverPriceBlur {
             return false;
         }
         
-        // Convert current time to minutes since midnight for easier comparison
-        const currentTotalMinutes = currentHour * 60 + currentMinute;
-        const marketOpenMinutes = this.marketOpenHour * 60 + this.marketOpenMinute;
-        const marketCloseMinutes = this.marketCloseHour * 60 + this.marketCloseMinute;
+        // Holiday check
+        const holidayInfo = this.getHolidayInfo(bangkokTime);
+        if (holidayInfo) {
+            console.log(`Silver Blur: Holiday detected (${holidayInfo.name}), price not available`);
+            return false;
+        }
         
-        const isOpen = currentTotalMinutes >= marketOpenMinutes && currentTotalMinutes <= marketCloseMinutes;
-        
-        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price ${isOpen ? 'AVAILABLE' : 'NOT AVAILABLE'}`);
-        return isOpen;
+        // Weekdays (Monday-Friday) that are not holidays - price is always available
+        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price AVAILABLE (weekday, not holiday)`);
+        return true;
     }
     
     // Apply blur effect to price elements
@@ -146,13 +205,16 @@ class SilverPriceBlur {
     }
     
     // Initialize the blur system
-    init() {
+    async init() {
         if (this.isInitialized) {
             console.log('Silver Blur: Already initialized');
             return;
         }
         
         console.log('Silver Blur: Starting initialization...');
+        
+        // Load holiday data first
+        await this.loadHolidayData();
         
         // Wait for DOM to be ready
         if (document.readyState === 'loading') {
@@ -188,31 +250,120 @@ class SilverPriceBlur {
         console.log('Silver Blur: System stopped');
     }
     
+    // Add a new holiday to the configuration
+    addHoliday(year, month, day, name, nameEn = '', type = 'custom') {
+        if (!this.holidayData || !this.holidayData.holidays) {
+            console.error('Silver Blur: Holiday data not loaded');
+            return false;
+        }
+        
+        const yearStr = year.toString();
+        const dateKey = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (!this.holidayData.holidays[yearStr]) {
+            this.holidayData.holidays[yearStr] = {};
+        }
+        
+        this.holidayData.holidays[yearStr][dateKey] = {
+            name: name,
+            name_en: nameEn || name,
+            type: type
+        };
+        
+        console.log(`Silver Blur: Added holiday - ${name} (${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')})`);
+        return true;
+    }
+    
+    // Remove a holiday from the configuration
+    removeHoliday(year, month, day) {
+        if (!this.holidayData || !this.holidayData.holidays) {
+            console.error('Silver Blur: Holiday data not loaded');
+            return false;
+        }
+        
+        const yearStr = year.toString();
+        const dateKey = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (this.holidayData.holidays[yearStr] && this.holidayData.holidays[yearStr][dateKey]) {
+            const holidayName = this.holidayData.holidays[yearStr][dateKey].name;
+            delete this.holidayData.holidays[yearStr][dateKey];
+            console.log(`Silver Blur: Removed holiday - ${holidayName} (${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')})`);
+            return true;
+        }
+        
+        console.warn(`Silver Blur: Holiday not found (${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')})`);
+        return false;
+    }
+    
+    // List all holidays for a specific year
+    listHolidays(year) {
+        if (!this.holidayData || !this.holidayData.holidays) {
+            console.error('Silver Blur: Holiday data not loaded');
+            return [];
+        }
+        
+        const yearStr = year.toString();
+        const holidays = this.holidayData.holidays[yearStr] || {};
+        
+        console.log(`=== Holidays for ${year} ===`);
+        Object.keys(holidays).sort().forEach(dateKey => {
+            const holiday = holidays[dateKey];
+            console.log(`${year}-${dateKey}: ${holiday.name} (${holiday.type})`);
+        });
+        console.log('=== End List ===');
+        
+        return holidays;
+    }
+    
     // Manual test function for debugging
     testTimeRange() {
         const bangkokTime = this.getBangkokTime();
+        const holidayInfo = this.getHolidayInfo(bangkokTime);
+        
         console.log('=== Silver Blur Time Test ===');
         console.log('Current Bangkok Time:', bangkokTime.toLocaleString('th-TH', {timeZone: 'Asia/Bangkok'}));
         console.log('Day of Week:', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][bangkokTime.getDay()]);
-        console.log('Market Hours: 08:30 - 17:30 (Mon-Fri)');
+        console.log('Is Holiday:', holidayInfo ? `Yes - ${holidayInfo.name}` : 'No');
+        console.log('Blur Logic: Weekends + Holidays only');
         console.log('Market Status:', this.isMarketOpen() ? 'OPEN' : 'CLOSED');
         console.log('Current Blur State:', this.currentBlurState ? 'BLURRED' : 'VISIBLE');
         console.log('=== End Test ===');
     }
 }
 
-// Global instance
-window.silverBlur = new SilverPriceBlur();
+// Global instance - can be reconfigured if needed
+window.silverBlur = window.silverBlur || new SilverPriceBlur();
+
+// Helper function to initialize with CDN
+window.initSilverBlurCDN = (cdnBaseUrl) => {
+    window.silverBlur = new SilverPriceBlur({
+        cdnBaseUrl: cdnBaseUrl
+    });
+    return window.silverBlur.init();
+};
 
 // Auto-initialize when script loads
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Wait a bit for the main silver price system to initialize
-    setTimeout(() => {
-        window.silverBlur.init();
+    setTimeout(async () => {
+        await window.silverBlur.init();
     }, 1000);
 });
 
 // Expose test function globally for console testing
 window.testSilverBlur = () => {
     window.silverBlur.testTimeRange();
+};
+
+// Expose holiday management functions globally
+window.addHoliday = (year, month, day, name, nameEn = '', type = 'custom') => {
+    return window.silverBlur.addHoliday(year, month, day, name, nameEn, type);
+};
+
+window.removeHoliday = (year, month, day) => {
+    return window.silverBlur.removeHoliday(year, month, day);
+};
+
+window.listHolidays = (year) => {
+    return window.silverBlur.listHolidays(year);
 };

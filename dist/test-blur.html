@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silver Blur System Test</title>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .price-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #002458;
+            margin: 10px 0;
+        }
+        .button-group {
+            margin: 15px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background: #002458;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #003a7a;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #e8f4fd;
+            border-left: 4px solid #002458;
+        }
+        .sv-event-timer {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 2em;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            position: relative;
+        }
+        .sv-event-timer div {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            position: relative;
+        }
+    </style>
+    <link rel="stylesheet" href="./css/silver-blur.css">
+</head>
+<body>
+    <div class="test-container">
+        <h1>Silver Price Blur System Test</h1>
+        
+        <div class="test-section">
+            <h2>Current Status</h2>
+            <div id="status" class="status">Loading...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Mock Silver Prices</h2>
+            <div class="sv-event-timer">
+                <div>
+                    <span id="slvUsdBid" class="price-display">24.50</span>
+                    <span>ซื้อ</span>
+                </div>
+                <div>
+                    <span id="slvUsdOffer" class="price-display">24.75</span>
+                    <span>ขาย</span>
+                </div>
+                <div>
+                    <span id="slvKgBid" class="price-display">25,450</span>
+                    <span>ซื้อ (kg)</span>
+                </div>
+                <div>
+                    <span id="slvKgOffer" class="price-display">25,650</span>
+                    <span>ขาย (kg)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Manual Controls</h2>
+            <div class="button-group">
+                <button onclick="window.silverBlur.testTimeRange()">Test Current Time</button>
+                <button onclick="manualBlur()">Force Blur</button>
+                <button onclick="manualUnblur()">Remove Blur</button>
+                <button onclick="updateStatus()">Update Status</button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Market Hours Information</h2>
+            <ul>
+                <li><strong>Market Hours:</strong> 08:30 - 17:30 (Bangkok Time)</li>
+                <li><strong>Trading Days:</strong> Monday - Friday</li>
+                <li><strong>Weekend:</strong> Saturday & Sunday (Market Closed)</li>
+                <li><strong>Timezone:</strong> Asia/Bangkok</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>Console Output</h2>
+            <p>Open browser console (F12) to see detailed logging from the blur system.</p>
+            <div id="console-output" style="background: #f5f5f5; padding: 10px; border-radius: 5px; font-family: monospace;"></div>
+        </div>
+    </div>
+
+    <script src="./scripts/silver-blur.js"></script>
+    <script>
+        function updateStatus() {
+            const status = document.getElementById('status');
+            const bangkokTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Bangkok"});
+            const isOpen = window.silverBlur.isMarketOpen();
+            const blurState = window.silverBlur.currentBlurState;
+            
+            status.innerHTML = `
+                <strong>Bangkok Time:</strong> ${new Date(bangkokTime).toLocaleString('th-TH')}<br>
+                <strong>Market Status:</strong> ${isOpen ? '🟢 OPEN' : '🔴 CLOSED'}<br>
+                <strong>Blur State:</strong> ${blurState ? '😵‍💫 BLURRED' : '👁️ VISIBLE'}
+            `;
+        }
+        
+        function manualBlur() {
+            window.silverBlur.applyBlur();
+            updateStatus();
+        }
+        
+        function manualUnblur() {
+            window.silverBlur.removeBlur();
+            updateStatus();
+        }
+        
+        // Override console.log to also display in the page
+        const originalConsoleLog = console.log;
+        const consoleOutput = document.getElementById('console-output');
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            if (args[0] && args[0].includes('Silver Blur')) {
+                const message = args.join(' ');
+                consoleOutput.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+        };
+        
+        // Update status every 5 seconds
+        setInterval(updateStatus, 5000);
+        
+        // Initial status update
+        setTimeout(updateStatus, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,586 @@
+<!-- Silver Blur System CSS v1.4 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/teerayuthj/silver-blur@v1.4/css/silver-blur.css">
+<style>
+    .sv-container {
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px 0px;
+        font-family: 'Prompt', sans-serif;
+    }
+    .sv-event-container {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        margin-top: 40px;
+    }
+    .sv-event-box {
+        position: relative;
+        background-color: #002458;
+        border-radius: 16px;
+        padding: 20px;
+        width: 550px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    .sv-event-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .sv-event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        position: relative;
+        z-index: 1;
+    }
+    .sv-event-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #fff;
+        display: flex;
+        align-items: center;
+    }
+    .sv-event-title .sv-img-title {
+        width: 48px; 
+        height: 48px; 
+        margin-right: 10px;
+    }
+    .sv-event-time, #slvUsdBid, #slvUsdOffer, #slvKgBid, #slvKgOffer, #slvUsdChg, #slvKgChg {
+        font-size: 1.3em;
+        font-weight: 700;
+        color: #E8E8E8;
+    }
+
+    .sv-event-time, #slvTime, #slvTimeKG {
+        font-size: 1.1em;
+        font-weight: 800;
+        color: #E8E8E8;
+        border-radius: 5px;    
+        width: 60px;      
+        float: right;  
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .sv-event-subtitle {
+        font-size: 1em;
+        color: #a1a1a1;
+    }
+    .sv-event-timer {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        margin-top: 10px;
+        font-size: 2.5em !important;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        padding: 10px 1px;
+        position: relative;
+        z-index: 1;
+    }
+    .sv-event-timer div {
+        text-align: center;
+        flex: 1;
+        padding: 10px;
+        position: relative;
+    }
+    .sv-event-timer div:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 1px;
+        height: 100%;
+        background-color: #708090;
+    }
+    .sv-event-timer div span{
+        display: block;
+        font-size: 0.4em;
+        color: #a1a1a1;
+        margin-top: 10px;
+    }
+    .sv-arrow {
+        align-self: flex-end;
+        margin-top: 10px;
+        position: relative;
+        z-index: 1;
+    }
+    .sv-arrow img {
+        width: 20px;
+        height: 20px;
+    }
+    .sv-icon {
+        background-color: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        height: 32px;
+        width: 32px;
+        padding: 4px;
+        border-radius: 8px;
+        margin-left: 16px;
+    }
+    .sv-icon-img {
+        height: 24px;
+        width: 24px;
+        margin-left: 1px;
+    }
+    .sv-icon:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .sv-skeleton-wrapper {
+        width: 100%; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sv-skeleton {
+        background: rgba(255, 255, 255, 0.2); /* ตัวอย่างสีพื้นหลังใสๆ */
+        border-radius: 4px;
+        animation: shimmer 1.5s infinite linear;
+        width: 100%; 
+        min-width: 50px;  
+        max-width: 300px; 
+        height: 1.5em;
+    }
+
+    .sv-skeleton-silver {
+        background: #E8E8E8;
+        border-radius: 4px;
+        animation: shimmer 1.5s infinite linear;
+        width: 100%; 
+        min-width: 70px;  
+        max-width: 450px; 
+        height: 1.5em;
+    }
+
+    .sv-skeleton-text {
+        height: 1em;
+        width: 100%;
+        margin: 0;
+    }
+
+    .sv-skeleton-text-silver {
+        height: 1em;
+        width: 100%;
+        margin: 0;
+        margin-top: 10px;
+    }
+    .sv-skeleton-rect {
+        height: 2em;
+        margin: 10px 0;
+    }
+    .sv-event-vat {
+        font-size: 0.9em;          
+        color: #666;               
+        margin-top: 20px;           
+        text-align: right;       
+    }
+
+    .sv-vat-label {
+        font-size: 16px;     
+        font-weight: bold;          
+    }
+
+    .sv-vat-value {
+        font-size: 1.7em;        
+        color: #002458;             
+        font-weight: 800;           
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .sv-container {
+            display: block;
+        }
+        .sv-event-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        .sv-event-box{
+            width: 100%;
+            padding: 15px;
+        }
+        .sv-event-goldprice {
+            width: 100%;
+        }
+        .sv-event-header img {
+            width: 60px;
+            height: 40px;
+        }
+        .sv-event-title {
+            font-size: 1.3em;
+        }
+        .sv-event-time, #slvUsdBid, #slvUsdOffer, #slvKgBid, #slvKgOffer, #slvUsdChg, #slvKgChg {
+            font-size: 1.1em;
+        }
+        .sv-event-timer {
+            font-size: 2em;
+            margin-top: 10px;
+            padding: 15px 1px;
+        }
+        .sv-event-timer div {
+            padding: 8px;
+        }
+        .sv-date {
+            width: 98%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sv-event-box{
+            padding: 10px;
+        }
+        .sv-event-header img {
+            width: 50px;
+            height: 30px;
+        }
+        .sv-event-title {
+            font-size: 1.1em;
+        }
+        .sv-event-time, #slvUsdBid, #slvUsdOffer,  #slvKgBid, #slvKgOffer, #slvUsdChg, #slvKgChg {
+            font-size: 0.85em;
+        }
+        
+        .sv-event-timer {
+            font-size: 1.5em;
+            padding: 10px 1px;
+            margin-top: 5px;
+        }
+        .sv-event-timer div {
+            padding: 5px;
+        }
+        .sv-arrow img {
+            width: 16px;
+            height: 16px;
+        }
+        .sv-icon {
+            height: 24px;
+            width: 24px;
+            padding: 2px;
+        }
+        .sv-icon-img {
+            height: 16px;
+            width: 16px;
+        }
+        .sv-img-title {
+            width: 24px; 
+            height: 24px;
+        }
+        .sv-date {
+            width: 100%;
+        }
+        .sv-vat-value {
+            font-size: 1.5em;
+        }
+    }
+
+    @media (max-width: 320px) {
+        .sv-event-box {
+            width: 95%;
+            padding: 10px;
+        }
+        .sv-event-time, #slvUsdBid, #slvUsdOffer, #slvKgBid, #slvKgOffer, #slvUsdChg, #slvKgChg {
+            font-size: 0.6em;
+        }
+    }
+
+    @media only screen and (max-width: 767px) and (min-width: 0px) {
+        .sv-container {
+            width: 100%;
+        }
+    }
+
+    .sv-date {
+        text-align: right;
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+        margin-bottom: 20px;
+    }
+
+    .sv-event-date {
+        font-size: 3.5em;
+        font-weight: 500;
+        color: #002458;
+        border-radius: 5px;
+        text-align: center;
+        padding: 20px;
+        margin-top: 40px;
+        font-family: 'Prompt', sans-serif;
+    }
+
+    /* Media Queries สำหรับหน้าจอต่างๆ */
+    @media (min-width: 1200px) {
+        .sv-event-date {
+            font-size: 3.5em;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1199px) {
+        .sv-event-date {
+            font-size: 2.2em;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .sv-event-date {
+            font-size: 2.1em;
+        }
+    }
+
+</style>
+
+<div class="sv-event-date" id="slvDate">ราคาซื้อขาย Ausiris Silver<br> 
+<div class="sv-skeleton-wrapper">
+  <span class="sv-skeleton-silver sv-skeleton-text-silver"></span>
+</div>
+</div>
+<div class="sv-container">
+<div class="sv-event-container">
+<div class="sv-event-goldprice">
+<div class="sv-event-box">
+    <div class="sv-event-header">
+        <div>
+            <div class="sv-event-title">
+                <img class="sv-img-title" src="http://www.ausiris.co.th/content/dam/ausirisgold/logo/silver-coin-dollar-icon.png" alt="img-title-gold">
+                แท่งเงินออสสิริส (USD/oz)
+            </div>
+        </div>
+        <div class="sv-event-time" id="slvTime">
+            <div class="sv-skeleton-wrapper">
+                <span class="sv-skeleton sv-skeleton-text"></span>
+            </div>
+        </div>
+    </div>
+    <div class="sv-event-timer">
+        <div>
+            <span id="slvUsdBid" class="sv-skeleton sv-skeleton-text"></span><span>ซื้อ</span>
+        </div>
+        <div>
+            <span id="slvUsdOffer" class="sv-skeleton sv-skeleton-text"></span><span>ขาย</span>
+        </div>
+        <div>
+            <span id="slvUsdChg" class="sv-skeleton sv-skeleton-text"></span><span>เปลี่ยนแปลง</span>
+        </div>
+    </div>
+</div>      
+</div>
+<div class="sv-event-goldprice">
+<div class="sv-event-box">
+    <div class="sv-event-header">
+        <div class="sv-event-title">
+            <img class="sv-img-title" src="http://www.ausiris.co.th/content/dam/ausirisgold/logo/silver-bars.png" alt="img-title-gold">
+            แท่งเงินออสสิริส 99.99% (THB/kg)
+        </div>
+        <div class="sv-event-time" id="slvTimeKG">
+            <div class="sv-skeleton-wrapper">
+                <span class="sv-skeleton sv-skeleton-text"></span>
+            </div>
+        </div>
+    </div>
+    <div class="sv-event-timer">
+        <div>
+            <span id="slvKgBid" class="sv-skeleton sv-skeleton-text"></span><span>ซื้อ</span>
+        </div>
+        <div>
+            <span id="slvKgOffer" class="sv-skeleton sv-skeleton-text"></span><span>ขาย</span>
+        </div>
+        <div>
+            <span id="slvKgChg" class="sv-skeleton sv-skeleton-text"></span><span>เปลี่ยนแปลง</span>
+        </div>
+    </div>
+ 
+    </div>
+    <!-- <div class="sv-date">Last updated: <span class="sv-skeleton sv-skeleton-text" id="slvTimeUpd">loading...</span></div> -->
+    <div class="sv-event-vat">
+        <span class="sv-vat-label">ราคารวม Vat: </span>
+        <span class="sv-vat-value" id="slvKgVat"></span> <span class="sv-vat-label">บาท</span>
+        
+    </div>
+    </div>
+</div>
+</div>
+
+<script>
+async function fetchSilverPrice() {
+    try {
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
+        const slvResp = await fetch('http://27.254.77.78/rest/public/rest/silver'); 
+        const slvRespYest = await fetch('http://27.254.77.78/rest/public/rest/silver-yesterday');
+        
+        const slvTyd = await slvResp.json();
+        const slvYest = await slvRespYest.json();
+
+        const slvUsdBid = slvTyd.Silver.bidspot;
+        const slvUsdOffer = slvTyd.Silver.offerspot;
+
+        const slvKgBid = slvTyd.Silver.bid;
+        const slvKgOffer = slvTyd.Silver.offer;
+
+        const slvTime = slvTyd.Silver.time;
+
+        const prevOffer = slvYest.Silver.offerspot;
+        const prevOffer965 = slvYest.Silver.offer;
+        
+        const slvUsdChg = slvUsdOffer - prevOffer;
+        const slvKgChg = slvKgOffer -  prevOffer965;
+
+        // คำนวณ VAT 7% จาก slvKgOffer
+        const slvKgOfferWithVAT = calculateVAT(slvKgOffer);
+
+        updElTxt('slvUsdBid', fmtNumComma(slvUsdBid));
+        updElTxt('slvUsdOffer', fmtNumComma(slvUsdOffer));
+
+        updElTxt('slvKgBid', fmtNumCommaSV(slvKgBid));
+        updElTxt('slvKgOffer', fmtNumCommaSV(slvKgOffer));
+
+        updElTxt('slvTime', getTimeString(slvTime));
+        updElTxt('slvTimeKG', getTimeString(slvTime));
+
+        // อัปเดตวันที่เป็นหัวข้อด้วยเดือนแบบ 'long'
+        updElinnerHTML('slvDate', 'ราคาซื้อขาย Ausiris Silver <br>' + fmtThDate(slvTime, 'long'));
+       
+        updElTxt('slvKgVat', fmtNumCommaSV(slvKgOfferWithVAT.toFixed(0)));
+
+        rmSkelCls('slvDate'); 
+
+        updElTxt('slvUsdChg', (slvUsdChg > 0 ? '+' : '') + fmtNumComma(slvUsdChg));
+        updElTxt('slvKgChg', (slvKgChg > 0 ? '+' : '') + fmtNumComma(slvKgChg));
+        
+        const changeSVSpot = document.getElementById('slvUsdChg');
+        const changeSVKG = document.getElementById('slvKgChg');
+
+        // Set date
+        updElTxt('slvTimeUpd', fmtThDate(slvTime), );
+
+        if (slvUsdChg > 0) {
+            changeSVSpot.style.color = '#1DB954';
+        } else if (slvUsdChg < 0) {
+            changeSVSpot.style.color = '#E32636';
+        } else {
+            changeSVSpot.style.color = '#808080';
+        }
+
+        if (slvKgChg > 0) {
+            changeSVKG.style.color = '#1DB954';
+        } else if (slvKgChg < 0) {
+            changeSVKG.style.color = '#E32636';
+        } else {
+            changeSVKG.style.color = '#808080';
+        }
+
+        rmSkelCls('slvUsdBid');
+        rmSkelCls('slvUsdOffer');
+        rmSkelCls('slvUsdChg');
+        rmSkelCls('slvKgBid');
+        rmSkelCls('slvKgOffer');
+        rmSkelCls('slvKgChg');
+        rmSkelCls('slvTimeUpd');
+        rmSkelCls('slvDate');
+        rmSkelCls('slvKgVat'); // ลบ skeleton หลังจากแสดงข้อมูล 
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+function rmSkelCls(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.classList.remove('sv-skeleton', 'sv-skeleton-text');
+        element.style.background = 'transparent';
+    }
+}
+
+function updElinnerHTML(id, text) {
+    const element = document.getElementById(id);
+        if (element) {
+        element.innerHTML = text; // ใช้ innerHTML เพื่อให้แท็ก HTML ถูกประมวลผล
+    }
+}
+
+function calculateVAT(slvKgOffer) {
+    return slvKgOffer * 1.07; // เพิ่ม VAT 7%
+}
+
+function updElTxt(id, text) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.innerText = text;
+    }
+}
+
+function fmtNumComma(number) {
+    return number.toLocaleString();
+}
+
+function fmtNumCommaSV(number) {
+
+    const num = Number(number);
+
+    if (isNaN(num)) {
+        return 'Invalid number';
+    }
+
+    return num.toLocaleString();
+}
+
+function getTimeString(time) {
+    return time.slice(10, 16); 
+}
+
+function formatDate(dateString) {
+    
+if (dateString.includes('/')) {
+    const [day, month, year] = dateString.split('/');
+    const convertedYear = parseInt(year) - 543;
+    return `--`;
+}
+    const [year, month, day] = dateString.split('-');
+    return `--`;
+}
+
+function fmtThDate(isoDateTime, monthFormat = 'short') {
+const dateObj = new Date(isoDateTime);
+
+const dateOptions = {
+    weekday: 'long',
+    day: 'numeric',
+    month: monthFormat,
+    year: 'numeric',
+    timeZone: 'Asia/Bangkok'
+};
+
+const formattedDate = dateObj.toLocaleDateString('th-TH', dateOptions);
+
+return formattedDate;
+}
+
+setInterval(fetchSilverPrice, 2000);
+fetchSilverPrice();
+
+</script>
+
+<!-- Silver Blur System JavaScript v1.5 -->
+<script src="dist/silver-blur.min.js"></script>

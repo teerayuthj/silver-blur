@@ -5,3 +5,5 @@
 /silver.html
 
 .gitignore
+
+/node_modules
