@@ -12,6 +12,8 @@ class SilverPriceBlur {
         this.config = {
             holidayJsonUrl: options.holidayJsonUrl || './config/holidays.json',
             cdnBaseUrl: options.cdnBaseUrl || null,
+            marketOpenHour: options.marketOpenHour || 8,
+            marketOpenMinute: options.marketOpenMinute || 0,
             ...options
         };
         
@@ -104,10 +106,12 @@ class SilverPriceBlur {
         return null;
     }
     
-    // Check if market is open (prices available) - Only blur on weekends and holidays
+    // Check if market is open (prices available) - Only blur on weekends, holidays, and before market hours
     isMarketOpen() {
         const bangkokTime = this.getBangkokTime();
         const dayOfWeek = bangkokTime.getDay(); // 0 = Sunday, 6 = Saturday
+        const currentHour = bangkokTime.getHours();
+        const currentMinute = bangkokTime.getMinutes();
         
         // Weekend check (Saturday = 6, Sunday = 0)
         if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -122,8 +126,17 @@ class SilverPriceBlur {
             return false;
         }
         
-        // Weekdays (Monday-Friday) that are not holidays - price is always available
-        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price AVAILABLE (weekday, not holiday)`);
+        // Market hours check for weekdays
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+        const marketOpenMinutes = this.config.marketOpenHour * 60 + this.config.marketOpenMinute;
+        
+        if (currentTotalMinutes < marketOpenMinutes) {
+            console.log(`Silver Blur: Before market hours (opens at ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')}), price not available`);
+            return false;
+        }
+        
+        // Weekdays (Monday-Friday) that are not holidays and after market opening time
+        console.log(`Silver Blur: Bangkok time ${bangkokTime.toLocaleTimeString('th-TH')}, Price AVAILABLE (weekday, not holiday, after ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')})`);
         return true;
     }
     
@@ -319,12 +332,16 @@ class SilverPriceBlur {
     testTimeRange() {
         const bangkokTime = this.getBangkokTime();
         const holidayInfo = this.getHolidayInfo(bangkokTime);
+        const currentHour = bangkokTime.getHours();
+        const currentMinute = bangkokTime.getMinutes();
         
         console.log('=== Silver Blur Time Test ===');
         console.log('Current Bangkok Time:', bangkokTime.toLocaleString('th-TH', {timeZone: 'Asia/Bangkok'}));
         console.log('Day of Week:', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][bangkokTime.getDay()]);
         console.log('Is Holiday:', holidayInfo ? `Yes - ${holidayInfo.name}` : 'No');
-        console.log('Blur Logic: Weekends + Holidays only');
+        console.log(`Market Hours: Opens at ${this.config.marketOpenHour.toString().padStart(2, '0')}:${this.config.marketOpenMinute.toString().padStart(2, '0')}`);
+        console.log(`Current Time: ${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`);
+        console.log('Blur Logic: Weekends + Holidays + Before Market Hours');
         console.log('Market Status:', this.isMarketOpen() ? 'OPEN' : 'CLOSED');
         console.log('Current Blur State:', this.currentBlurState ? 'BLURRED' : 'VISIBLE');
         console.log('=== End Test ===');
@@ -366,4 +383,13 @@ window.removeHoliday = (year, month, day) => {
 
 window.listHolidays = (year) => {
     return window.silverBlur.listHolidays(year);
+};
+
+// Set market opening time
+window.setMarketHours = (hour, minute = 0) => {
+    window.silverBlur.config.marketOpenHour = hour;
+    window.silverBlur.config.marketOpenMinute = minute;
+    console.log(`Silver Blur: Market hours updated to ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    // Immediately update blur status
+    window.silverBlur.updateBlurStatus();
 };
