@@ -88,19 +88,19 @@
               "name_en": "Makha Bucha Day",
               "type": "buddhist"
           },
-          "04-13": {
-              "name": "วันสงกรานต์ วันที่ 1",
-              "name_en": "Songkran Festival Day 1",
-              "type": "traditional"
+          "04-07": {
+              "name": "ชดเชยวันพระบาทสมเด็จพระพุทธยอดฟ้าจุฬาโลกมหาราช และวันที่ระลึกมหาจักรีบรมราชวงศ์",
+              "name_en": "Substitute Day for Chakri Memorial Day",
+              "type": "royal"
           },
           "04-14": {
-              "name": "วันสงกรานต์ วันที่ 2",
-              "name_en": "Songkran Festival Day 2",
+              "name": "วันสงกรานต์",
+              "name_en": "Songkran Festival",
               "type": "traditional"
           },
           "04-15": {
-              "name": "วันสงกรานต์ วันที่ 3",
-              "name_en": "Songkran Festival Day 3",
+              "name": "วันสงกรานต์",
+              "name_en": "Songkran Festival",
               "type": "traditional"
           },
           "05-01": {
@@ -108,28 +108,48 @@
               "name_en": "Labour Day",
               "type": "national"
           },
-          "05-11": {
-              "name": "วันวิสาขบูชา",
-              "name_en": "Visakha Bucha Day",
+          "05-05": {
+              "name": "ชดเชยวันฉัตรมงคล",
+              "name_en": "Substitute Day for Coronation Day",
+              "type": "royal"
+          },
+          "05-12": {
+              "name": "ชดเชยวันวิสาขบูชา",
+              "name_en": "Substitute Day for Visakha Bucha Day",
               "type": "buddhist"
           },
-          "07-09": {
-              "name": "วันเข้าพรรษา",
-              "name_en": "Buddhist Lent Day",
+          "06-02": {
+              "name": "วันหยุดพิเศษ",
+              "name_en": "Special Holiday",
+              "type": "special"
+          },
+          "06-03": {
+              "name": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสุทิดา พัชรสุธาพิมลลักษณ พระบรมราชินี",
+              "name_en": "Queen Suthida's Birthday",
+              "type": "royal"
+          },
+          "07-10": {
+              "name": "วันอาสาฬหบูชา",
+              "name_en": "Asahna Bucha Day",
               "type": "buddhist"
           },
           "07-28": {
-              "name": "วันเฉลิมพระชนมพรรษา รัชกาลที่ 10",
+              "name": "วันเฉลิมพระชนมพรรษาพระบาทสมเด็จพระเจ้าอยู่หัว",
               "name_en": "King Vajiralongkorn's Birthday",
               "type": "royal"
           },
+          "08-11": {
+              "name": "วันหยุดพิเศษ",
+              "name_en": "Special Holiday",
+              "type": "special"
+          },
           "08-12": {
-              "name": "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าสิริกิติ์",
-              "name_en": "Queen Sirikit's Birthday",
+              "name": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสิริกิติ์ พระบรมราชินีนาถ พระบรมราชชนนีพันปีหลวง และวันแม่แห่งชาติ",
+              "name_en": "Queen Sirikit's Birthday and Mother's Day",
               "type": "royal"
           },
           "10-13": {
-              "name": "วันคล้ายวันสวรรคต รัชกาลที่ 9",
+              "name": "วันนวมินทรมหาราช",
               "name_en": "King Bhumibol Memorial Day",
               "type": "royal"
           },
@@ -139,8 +159,8 @@
               "type": "royal"
           },
           "12-05": {
-              "name": "วันคล้ายวันเฉลิมพระชนมพรรษา รัชกาลที่ 9",
-              "name_en": "King Bhumibol's Birthday",
+              "name": "วันคล้ายวันพระบรมราชสมภพ พระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช บรมนาถบพิตร วันชาติ และวันพ่อแห่งชาติ",
+              "name_en": "King Bhumibol's Birthday, National Day and Father's Day",
               "type": "royal"
           },
           "12-10": {
@@ -157,7 +177,8 @@
   },
   "meta": {
       "last_updated": "2024-12-23",
-      "description": "Thai national holidays and royal observance days",
-      "note": "Update annually with official government holiday announcements"
+      "description": "Thai financial institution holidays and royal observance days",
+      "note": "Updated for 2025 with Bank of Thailand holiday announcements including special holidays on June 2 and August 11",
+      "source": "Bank of Thailand Holiday Calendar 2025"
   }
 }
